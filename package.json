@@ -1,0 +1,27 @@
+{
+  "name": "express-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "db": "mkdir -p db && mongod --dbpath ./db",
+    "dev": "babel-node server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rustunn/node-express-test.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rustunn/node-express-test/issues"
+  },
+  "homepage": "https://github.com/rustunn/node-express-test#readme",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "mongoose": "^5.2.1",
+    "node-babel": "^0.1.2"
+  }
+}
