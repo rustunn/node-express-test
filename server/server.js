@@ -1,18 +1,31 @@
 import path from 'path';
+import fs from 'fs';
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import chalk from 'chalk';
+import morgan from 'morgan';
+import logger from './logger.js';
 
+/**
+ * Create logs directory if it does not exist
+ */
+const logsDir = 'logs'; // should be the same as directory specified in logger.js
+if (!fs.existsSync(logsDir)){
+  fs.mkdirSync(logsDir);
+}
+
+
+/**
+ * Read configurations
+ */
 const config = dotenv.config({ path: path.join(__dirname, '../config/.env.dev') });
-if (!config) console.log('%s Unable to load configuration file.', chalk.red('✗'));
+if (!config) logger.error('Unable to load configuration file.');
 
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.connection.on('error', err => {
-  console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
-  console.error(err);
+  logger.error('MongoDB connection error. Please make sure MongoDB is running.',  err);
   process.exit();
 });
 
@@ -30,19 +43,21 @@ const user = new UserModel({
 
 user.save(err => {
   if (err) {
-    console.log('Unable to create user.', err);
+    logger.error('Unable to create new user in MongoDB', err);
     return;
   }
-  console.log('User sucessfully created!');
+  logger.info('New User sucessfully created in MongoDB');
 });
 
 app.set('host', process.env.HOST);
 app.set('port', process.env.PORT);
 
+app.use(morgan('combined', { stream: logger.stream }));
+
 app.get('/', (req, res) => {
   UserModel.find({}, (err, results) => {
     if (err) {
-      console.log('Unable to get all users.');
+      logger.error('Unable to get all users.');
       res.status(500);
       res.send(); 
     }
@@ -52,5 +67,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(app.get('port'), app.get('host'), () => {
-  console.log(chalk.green(`✓ Server started on: ${app.get('host')}:${app.get('port')}`));
+  logger.info(`Server started successfully on: ${app.get('host')}:${app.get('port')}`);
 });

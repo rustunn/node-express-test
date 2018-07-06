@@ -6,3 +6,6 @@ db
 
 # OS metadata
 .DS_Store
+
+# Logs
+**/*.log
