@@ -4,7 +4,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import bodyParser from 'body-parser';
 import logger from './logger.js';
+import { createUser } from './api/user.js';
 
 /**
  * Create logs directory if it does not exist
@@ -21,38 +23,29 @@ if (!fs.existsSync(logsDir)){
 const config = dotenv.config({ path: path.join(__dirname, '../config/.env.dev') });
 if (!config) logger.error('Unable to load configuration file.');
 
-const app = express();
 
+/**
+ * Connect to MongoDB
+ */
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.connection.on('error', err => {
   logger.error('MongoDB connection error. Please make sure MongoDB is running.',  err);
   process.exit();
 });
 
-const UserSchema = new mongoose.Schema({
-  email: { type: String, unique: true, trim: true, required: true },
-  password: { type: String, required: true },
-});
 
-const UserModel = mongoose.model('User', UserSchema);
-
-const user = new UserModel({
-  email: '111',
-  password: '111',
-});
-
-user.save(err => {
-  if (err) {
-    logger.error('Unable to create new user in MongoDB', err);
-    return;
-  }
-  logger.info('New User sucessfully created in MongoDB');
-});
+/**
+ * Initialize the application
+ */
+const app = express();
 
 app.set('host', process.env.HOST);
 app.set('port', process.env.PORT);
 
 app.use(morgan('combined', { stream: logger.stream }));
+app.use(bodyParser.json());
+
+app.post('/api/user', createUser);
 
 app.get('/', (req, res) => {
   UserModel.find({}, (err, results) => {
