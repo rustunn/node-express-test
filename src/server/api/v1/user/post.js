@@ -1,4 +1,5 @@
 import { check, validationResult } from 'express-validator/check';
+import bcrypt from 'bcryptjs';
 import UserModel from '../../../models/user.js';
 import logger from '../../../utils/logger.js';
 import __ from '../../../utils/localize.js';
@@ -33,40 +34,51 @@ export async function createUser(req, res) {
     return;
   }
 
-  const user = new UserModel({
-    email: req.body.email,
-    password: req.body.password,
-  });
-
   try {
-    const existingUser = await UserModel.findOne({ email: req.body.email }, { lean: true });
-    if (existingUser) {
-      logger.info('Can not create new user with this email. It is already used', req.body.email);
-      res.sendStatus(409);
-      return;
-    }
-
+    const salt  = await bcrypt.genSalt(10);
     try {
-      const newUser = await user.save();
-      logger.info('New User successfully created.');
+      const hash = await bcrypt.hash(req.body.password, salt);
 
-      // Cleaning mongoose data object to only return public user schema field 
-      const newUserCleared = {};
-      if (newUser._doc) {
-        Object.keys(newUser._doc).forEach(key => {
-          if (key !== 'password' && key !== '_id' && key !== '__v') newUserCleared[key] = newUser[key];
-        });
+      const user = new UserModel({
+        email: req.body.email,
+        password: hash,
+      });
+    
+      try {
+        const existingUser = await UserModel.findOne({ email: req.body.email }, { lean: true });
+        if (existingUser) {
+          logger.info('Can not create new user with this email. It is already used', req.body.email);
+          res.sendStatus(409);
+          return;
+        }
+    
+        try {
+          const newUser = await user.save();
+          logger.info('New User successfully created.');
+    
+          // Cleaning mongoose data object to only return public user schema field 
+          const newUserCleared = {};
+          if (newUser._doc) {
+            Object.keys(newUser._doc).forEach(key => {
+              if (key !== 'password' && key !== '_id' && key !== '__v') newUserCleared[key] = newUser[key];
+            });
+          }
+          res.status(200);
+          res.json(newUserCleared);
+        } catch (err) {
+          logger.error('Unable to create new user.', err);
+          res.sendStatus(500);
+          return;
+        }
+      } catch(err) {
+        logger.error('Unable to find user by email.', err);
+        res.sendStatus(500);
+        return;
       }
-      res.status(200);
-      res.json(newUserCleared);
-    } catch (err) {
-      logger.error('Unable to create new user.', err);
-      res.sendStatus(500);
-      return;
+    } catch(err) {
+      logger.error('Unable to generate password hash.', err);
     }
   } catch(err) {
-    logger.error('Unable to find user by email.', err);
-    res.sendStatus(500);
-    return;
+    logger.error('Unable to generate password salt.', err);
   }
 }
