@@ -19,7 +19,7 @@ export function createUser(req, res) {
   if (!errors.isEmpty()) {
     logger.info('Create user data validation failed', errors.array());
     res.status(422);
-    res.send(JSON.stringify(errors.array()));
+    res.json(errors.array());
     return;
   }
 
@@ -31,22 +31,20 @@ export function createUser(req, res) {
   UserModel.findOne({ email: req.body.email }, { lean: true }, (err, existingUser) => {
     if (err) {
       logger.error('Unable to find user by email.', err);
-      res.status(500);
-      res.send();
+      res.sendStatus(500);
       return;
     }
     
     if (existingUser) {
-      res.status(409);
-      res.send();
+      logger.info('Can not create new user with this email. It is already used', req.body.email);
+      res.sendStatus(409);
       return;
     }
 
     user.save((err, newUser) => {
       if (err) {
         logger.error('Unable to create new user.', err);
-        res.status(500);
-        res.send();
+        res.sendStatus(500);
         return;
       }
       logger.info('New User sucessfully created.');
@@ -59,8 +57,7 @@ export function createUser(req, res) {
         });
       }
       res.status(200);
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(newUserCleared));
+      res.json(newUserCleared);
     });
   });
 }
