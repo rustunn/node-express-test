@@ -1,6 +1,7 @@
 import { check, validationResult } from 'express-validator/check';
 import UserModel from '../../../models/user.js';
-import logger from '../../../logger.js';
+import logger from '../../../utils/logger.js';
+import __ from '../../../utils/localize.js';
 
 
 /**
@@ -9,9 +10,12 @@ import logger from '../../../logger.js';
 export const createUserValidations = [
   check('email')
     .trim()
-    .isLength({ min: 5 }).withMessage('must be at least 5 chars long')
-    .isEmail().withMessage('must be valid email')
-    .normalizeEmail()
+    .isLength({ min: 5 }).withMessage(__('error.tooShort', __('email'), 5))
+    .isEmail().withMessage(__('error.invalidEmail'))
+    .normalizeEmail(),
+  check('password')
+    .trim()
+    .isLength({ min: 6 }).withMessage(__('error.tooShort', __('password'), 6))
 ];
 
 
@@ -44,9 +48,9 @@ export async function createUser(req, res) {
 
     try {
       const newUser = await user.save();
-      logger.info('New User sucessfully created.');
+      logger.info('New User successfully created.');
 
-      // Cleaning mongoose data object to only return public user schema feild 
+      // Cleaning mongoose data object to only return public user schema field 
       const newUserCleared = {};
       if (newUser._doc) {
         Object.keys(newUser._doc).forEach(key => {

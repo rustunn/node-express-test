@@ -1,0 +1,6 @@
+{
+  "email": "Email",
+  "password": "Password",
+  "error.tooShort": "%s should be at least %s characters long.",
+  "error.invalidEmail": "Please, use a valid email address."
+}

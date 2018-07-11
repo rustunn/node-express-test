@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import logger from './logger.js';
+import logger from './utils/logger.js';
 import { createUserValidations, createUser } from './api/v1/user/post.js';
 
 
@@ -54,7 +54,7 @@ app.disable('x-powered-by');
 /**
  * Define APIs
  */
-app.post('/api/user', createUserValidations, createUser);
+app.post('/api/v1/user', createUserValidations, createUser);
 
 app.get('/', (req, res) => {
   UserModel.find({}, (err, results) => {
