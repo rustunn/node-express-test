@@ -7,7 +7,8 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import logger from './logger.js';
-import { createUserValidations, createUser } from './api/user.js';
+import { createUserValidations, createUser } from './api/v1/user/post.js';
+
 
 /**
  * Create logs directory if it does not exist
@@ -36,7 +37,7 @@ mongoose.connection.on('error', err => {
 
 
 /**
- * Initialize the application
+ * Initialize and configure the app
  */
 const app = express();
 
@@ -49,6 +50,10 @@ app.use(bodyParser.json());
 
 app.disable('x-powered-by');
 
+
+/**
+ * Define APIs
+ */
 app.post('/api/user', createUserValidations, createUser);
 
 app.get('/', (req, res) => {
@@ -63,6 +68,10 @@ app.get('/', (req, res) => {
   });
 });
 
+
+/**
+ * Run the app
+ */
 app.listen(app.get('port'), app.get('host'), () => {
   logger.info(`Server started successfully on: ${app.get('host')}:${app.get('port')}`);
 });

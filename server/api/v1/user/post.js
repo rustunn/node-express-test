@@ -1,13 +1,6 @@
-import mongoose from 'mongoose';
 const { check, validationResult } = require('express-validator/check');
-import logger from '../logger';
-
-const UserSchema = new mongoose.Schema({
-  email: { type: String, unique: true, trim: true, required: true },
-  password: { type: String, required: true },
-});
-  
-const UserModel = mongoose.model('User', UserSchema);
+import UserModel from '../../../models/user.js';
+import logger from '../../../logger.js';
 
 export const createUserValidations = [
   check('email').isEmail(),
