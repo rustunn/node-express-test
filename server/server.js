@@ -6,9 +6,8 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import expressValidator from 'express-validator';
 import logger from './logger.js';
-import { createUser } from './api/user.js';
+import { createUserValidations, createUser } from './api/user.js';
 
 /**
  * Create logs directory if it does not exist
@@ -47,11 +46,10 @@ app.set('port', process.env.PORT);
 app.use(compression());
 app.use(morgan('combined', { stream: logger.stream }));
 app.use(bodyParser.json());
-app.use(expressValidator());
 
 app.disable('x-powered-by');
 
-app.post('/api/user', createUser);
+app.post('/api/user', createUserValidations, createUser);
 
 app.get('/', (req, res) => {
   UserModel.find({}, (err, results) => {

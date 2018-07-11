@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+const { check, validationResult } = require('express-validator/check');
 import logger from '../logger';
 
 const UserSchema = new mongoose.Schema({
@@ -8,14 +9,17 @@ const UserSchema = new mongoose.Schema({
   
 const UserModel = mongoose.model('User', UserSchema);
 
+export const createUserValidations = [
+  check('email').isEmail(),
+];
+
 export function createUser(req, res) {
-  req.assert('email', 'Enter valid email').isEmail();
+  const errors = validationResult(req);
 
-  const errors = req.validationErrors();
-
-  if (errors) {
+  if (!errors.isEmpty()) {
+    logger.info('Create user data validation failed', errors.array());
     res.status(422);
-    res.send(JSON.stringify(errors));
+    res.send(JSON.stringify(errors.array()));
     return;
   }
 
