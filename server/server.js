@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
+import compression from 'compression';
+import expressValidator from 'express-validator';
 import logger from './logger.js';
 import { createUser } from './api/user.js';
 
@@ -42,8 +44,12 @@ const app = express();
 app.set('host', process.env.HOST);
 app.set('port', process.env.PORT);
 
+app.use(compression());
 app.use(morgan('combined', { stream: logger.stream }));
 app.use(bodyParser.json());
+app.use(expressValidator());
+
+app.disable('x-powered-by');
 
 app.post('/api/user', createUser);
 
