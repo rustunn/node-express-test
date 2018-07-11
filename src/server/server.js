@@ -22,7 +22,7 @@ if (!fs.existsSync(logsDir)){
 /**
  * Read configurations
  */
-const config = dotenv.config({ path: path.join(__dirname, '../config/.env.dev') });
+const config = dotenv.config({ path: path.join(__dirname, '../../config/.env.dev') });
 if (!config) logger.error('Unable to load configuration file.');
 
 

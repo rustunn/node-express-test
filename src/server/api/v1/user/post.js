@@ -7,7 +7,11 @@ import logger from '../../../logger.js';
  * Request body validations
  */
 export const createUserValidations = [
-  check('email').isEmail(),
+  check('email')
+    .trim()
+    .isLength({ min: 5 }).withMessage('must be at least 5 chars long')
+    .isEmail().withMessage('must be valid email')
+    .normalizeEmail()
 ];
 
 
