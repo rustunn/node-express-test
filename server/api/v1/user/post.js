@@ -1,11 +1,21 @@
-const { check, validationResult } = require('express-validator/check');
+import { check, validationResult } from 'express-validator/check';
 import UserModel from '../../../models/user.js';
 import logger from '../../../logger.js';
 
+
+/**
+ * Request body validations
+ */
 export const createUserValidations = [
   check('email').isEmail(),
 ];
 
+
+/**
+ * Request handler
+ * @param {*} req 
+ * @param {*} res 
+ */
 export function createUser(req, res) {
   const errors = validationResult(req);
 
