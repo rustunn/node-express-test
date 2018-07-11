@@ -9,3 +9,6 @@ db
 
 # Logs
 **/*.log
+
+# Dist folder
+dist

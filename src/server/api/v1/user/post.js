@@ -16,9 +16,8 @@ export const createUserValidations = [
  * @param {*} req 
  * @param {*} res 
  */
-export function createUser(req, res) {
+export async function createUser(req, res) {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     logger.info('Create user data validation failed', errors.array());
     res.status(422);
@@ -31,25 +30,16 @@ export function createUser(req, res) {
     password: req.body.password,
   });
 
-  UserModel.findOne({ email: req.body.email }, { lean: true }, (err, existingUser) => {
-    if (err) {
-      logger.error('Unable to find user by email.', err);
-      res.sendStatus(500);
-      return;
-    }
-    
+  try {
+    const existingUser = await UserModel.findOne({ email: req.body.email }, { lean: true });
     if (existingUser) {
       logger.info('Can not create new user with this email. It is already used', req.body.email);
       res.sendStatus(409);
       return;
     }
 
-    user.save((err, newUser) => {
-      if (err) {
-        logger.error('Unable to create new user.', err);
-        res.sendStatus(500);
-        return;
-      }
+    try {
+      const newUser = await user.save();
       logger.info('New User sucessfully created.');
 
       // Cleaning mongoose data object to only return public user schema feild 
@@ -61,6 +51,14 @@ export function createUser(req, res) {
       }
       res.status(200);
       res.json(newUserCleared);
-    });
-  });
+    } catch (err) {
+      logger.error('Unable to create new user.', err);
+      res.sendStatus(500);
+      return;
+    }
+  } catch(err) {
+    logger.error('Unable to find user by email.', err);
+    res.sendStatus(500);
+    return;
+  }
 }
