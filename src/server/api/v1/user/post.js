@@ -1,7 +1,8 @@
 import { check, validationResult } from 'express-validator/check';
 import bcrypt from 'bcryptjs';
-import UserModel from '../../../models/user.js';
+// import UserModel from '../../../models/user.js';
 import logger from '../../../utils/logger.js';
+import { getDB } from '../../../utils/mongo.js';
 import __ from '../../../utils/localize.js';
 
 
@@ -34,33 +35,36 @@ export async function createUser(req, res) {
     return;
   }
 
+  const db = getDB();
+  const collection = db.collection('users');
+
   try {
     const salt  = await bcrypt.genSalt(10);
     try {
       const hash = await bcrypt.hash(req.body.password, salt);
 
-      const user = new UserModel({
+      const user = {
         email: req.body.email,
         password: hash,
-      });
+      };
     
       try {
-        const existingUser = await UserModel.findOne({ email: req.body.email }, { lean: true });
-        if (existingUser) {
+        const existingUser = await collection.find({ email: req.body.email }).limit(1).toArray();
+        if (existingUser.length) {
           logger.info('Can not create new user with this email. It is already used', req.body.email);
           res.sendStatus(409);
           return;
         }
     
         try {
-          const newUser = await user.save();
+          const newUser = await collection.insertOne(user);
           logger.info('New User successfully created.');
     
           // Cleaning mongoose data object to only return public user schema field 
           const newUserCleared = {};
-          if (newUser._doc) {
-            Object.keys(newUser._doc).forEach(key => {
-              if (key !== 'password' && key !== '_id' && key !== '__v') newUserCleared[key] = newUser[key];
+          if (newUser && newUser.ops && newUser.ops[0]) {
+            Object.keys(newUser.ops[0]).forEach(key => {
+              if (key !== 'password' && key !== '_id' && key !== '__v') newUserCleared[key] = newUser.ops[0][key];
             });
           }
           res.status(200);

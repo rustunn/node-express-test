@@ -8,7 +8,6 @@
 const messages = {};
 
 export default function(...args) {
-  console.log(2222, args);
   if (!messages[args[0]]) return args[0];
 
   const string = messages[args[0]];

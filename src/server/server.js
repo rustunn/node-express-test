@@ -1,11 +1,11 @@
 import path from 'path';
 import fs from 'fs';
 import express from 'express';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import compression from 'compression';
+import { connectDB } from './utils/mongo';
 import logger from './utils/logger.js';
 import { createUserValidations, createUser } from './api/v1/user/post.js';
 
@@ -27,13 +27,9 @@ if (!config) logger.error('Unable to load configuration file.');
 
 
 /**
- * Connect to MongoDB
+ * Connect MongoDB
  */
-mongoose.connect(process.env.MONGODB_URI);
-mongoose.connection.on('error', err => {
-  logger.error('MongoDB connection error. Please make sure MongoDB is running.',  err);
-  process.exit();
-});
+connectDB();
 
 
 /**
