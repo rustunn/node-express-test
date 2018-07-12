@@ -7,7 +7,7 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import { connectDB } from './utils/mongo';
 import logger from './utils/logger.js';
-import { createUserValidations, createUser } from './api/v1/user/post.js';
+import { createUserValidations, createUser } from './api/v1/user/signup.js';
 
 
 /**

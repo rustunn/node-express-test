@@ -1,6 +1,5 @@
 import { check, validationResult } from 'express-validator/check';
 import bcrypt from 'bcryptjs';
-// import UserModel from '../../../models/user.js';
 import logger from '../../../utils/logger.js';
 import { getDB } from '../../../utils/mongo.js';
 import __ from '../../../utils/localize.js';
