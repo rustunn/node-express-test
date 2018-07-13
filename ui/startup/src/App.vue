@@ -36,10 +36,14 @@ export default {
 
 
 <style lang="scss">
+@import 'src/common/styles/colors';
+
 html, body {
   padding: 0;
   margin: 0;
   border: 0;
+  min-width: 320px;
+  color: $color-dark-2;
 }
 
 a {
