@@ -1,0 +1,6 @@
+@import 'src/common/styles/typography';
+
+h2 {
+  @include t-h2;
+  margin-top: 60px;
+}
