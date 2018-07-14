@@ -14,70 +14,72 @@
           <font-awesome-icon icon="question-circle" slot="reference"></font-awesome-icon>
         </el-popover>
       </div>
-      <el-radio-group v-model="value.scheduleType" size="small">
+      <el-radio-group v-model="type" size="small">
         <el-radio-button label="Intermittent"></el-radio-button>
         <el-radio-button label="Recurrent"></el-radio-button>
         <el-radio-button label="Series"></el-radio-button>
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item label="Next activity date">
+    <div v-if="showIntermittent">
+      <h3>Next activity date</h3>
+
       <div class="nextActivityDates">
-        <el-tag v-for="(time, index) in value.nextActivityDates" :key="time"
-          type="info" closable @close="removeNextActivityDate(index)">
-          {{timestampToDate(time)}}
+        <el-tag v-for="(date, index) in dates" :key="date.startTime"
+          type="info" closable @close="removeDate(index)">
+          {{timestampToDate(date.startTime)}} - {{date.duration}}
         </el-tag>
-        <el-date-picker
-          v-model="nextActivityDate"
-          type="datetime"
-          :placeholder="nextActivityDatePlaceholder"
-          format="yyyy/MM/dd HH:mm:ss"
-          value-format="timestamp"
-          :picker-options="{ disabledDate: dateInTheFuture }"
-          @change="nextActivityDatePicked"
-        >
-        </el-date-picker>
       </div>
-    </el-form-item>
+
+      <when-add-date v-if="addDateShown" @input="addDate" @cancel="closeAddDate"></when-add-date>
+      <el-button plain v-else @click="openAddDate">Add another date</el-button>
+    </div>
   </div>
 </template>
 
 <script>
 import timestampToDate from '@/common/scripts/timestamp-to-date';
+import WhenAddDate from './WhenAddDate.vue';
 
 export default {
-  props: ['value'],
   data() {
     return {
-      nextActivityDate: '',
+      addDateShown: false,
+      type: '',
+      dates: [],
     };
   },
   computed: {
-    nextActivityDatePlaceholder() {
-      return this.value.nextActivityDates.length ? 'Select another date' : 'Select a date';
+    showIntermittent() {
+      return this.type === 'Intermittent';
     },
   },
   watch: {
-    value() {
-      this.$emit('input', this.value);
+    type(val) {
+      this.dates = [];
+      if (val === 'Intermittent') this.openAddDate();
     },
   },
   methods: {
-    dateInTheFuture(timestamp) {
-      const offset = 1000 * 60 * 60; // One hour
-      const time = new Date().getTime();
-      return timestamp < time - offset;
+    removeDate(index) {
+      this.dates.splice(index, 1);
     },
-    nextActivityDatePicked(timestamp) {
-      this.value.nextActivityDates.push(timestamp);
-      this.nextActivityDate = '';
-    },
-    removeNextActivityDate(index) {
-      this.value.nextActivityDates.splice(index, 1);
+    addDate(date) {
+      this.dates.push(date);
+      this.closeAddDate();
     },
     timestampToDate(timestamp) {
       return timestampToDate(timestamp, 'en-US', { hour: 'numeric', minute: 'numeric' });
     },
+    openAddDate() {
+      this.addDateShown = true;
+    },
+    closeAddDate() {
+      this.addDateShown = false;
+    },
+  },
+  components: {
+    WhenAddDate,
   },
 };
 </script>

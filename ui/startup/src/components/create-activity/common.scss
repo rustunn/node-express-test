@@ -4,3 +4,8 @@ h2 {
   @include t-h2;
   margin-top: 60px;
 }
+
+h3 {
+  @include t-h3;
+  margin-top: 40px;
+}

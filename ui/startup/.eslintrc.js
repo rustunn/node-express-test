@@ -17,6 +17,7 @@ module.exports = {
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
     }],
+    'no-mixed-operators': 'off'
   },
   parserOptions: {
     parser: 'babel-eslint'
