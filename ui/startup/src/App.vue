@@ -44,13 +44,10 @@ html, body {
   border: 0;
   min-width: 320px;
   color: $color-dark-2;
+  font-family: system-ui;
 }
 
 a {
   text-decoration: none;
-}
-
-#app {
-  font-family: system-ui;
 }
 </style>
